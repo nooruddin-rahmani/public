@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <link rel="icon" type="image/x-icon" href="../images/favicon-32x32.png" />
+    <!-- <link rel="stylesheet" href="./form-styles.css" /> -->
+    <title>شاروالی کابل</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        #data-table {
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9rem;
+            min-width: 400px;
+        }
+
+        #data-table thead tr {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #data-table th,
+        table td {
+            padding: 12px 15px;
+        }
+
+        #data-table tbody tr {
+            border: 1px solid black;
+        }
+
+        #data-table button {
+            padding: 7px 15px;
+            font-size: 14px;
+            background-color: red;
+            color: white;
+            outline: none;
+            border: none;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>شاروالی کابل</h1>
+        <h2>ریاست نشرات و آگاهی عامه</h2>
+        <h3>گزارش روزانه کارمندان این اداره</h3>
+    </div>
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>شماره</th>
+                <th>نام کارمند</th>
+                <th>بست / مسولیت</th>
+                <th>گزارش کاری</th>
+                <th>ملاحضه</th>
+                <th>تاریخ</th>
+                <th>حذف</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
+
+    <script src="./pocketbase.umd.js"></script>
+    <script type="application/json" src="./pocketbase.umd.js.map"></script>
+    <!-- Add this code inside your <script> tag -->
+    <script>
+        async function main() {
+            const pb = new PocketBase('https://azda.hop.sh');
+            const auth = await pb.admins.authWithPassword('nooruddin.rahmani100@gmail.com', 'N1@nooruddin');
+            const records = await pb.collection('personnel_reports').getFullList(200 /* batch size */, {
+                sort: '-created',
+            });
+            const results = records.map((record) => {
+                return { id: record.id, name: record.personnel_name, responsibility: record.personnel_responsibility, report: record.personnel_report, comment: record.personnel_comment, createdAt: record.created }
+            });
+
+            const tableBody = document.querySelector('#data-table tbody');
+            let rowNumber = 1;
+            // Populate the table with data
+            results.forEach((result) => {
+                const row = tableBody.insertRow();
+                const numberCell = row.insertCell(0); // Add a cell for row numbers
+                const nameCell = row.insertCell(1);
+                const responsibilityCell = row.insertCell(2);
+                const reportCell = row.insertCell(3);
+                const commentCell = row.insertCell(4);
+                const createdAtCell = row.insertCell(5);
+                const actionCell = row.insertCell(6);
+                numberCell.textContent = rowNumber;
+                rowNumber++;
+
+
+
+
+                nameCell.textContent = result.name;
+                responsibilityCell.textContent = result.responsibility;
+                reportCell.textContent = result.report;
+                commentCell.textContent = result.comment;
+                createdAtCell.textContent = result.createdAt;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'حذف';
+                deleteButton.addEventListener('click', () => {
+                    // Call a function to delete the record
+                    deleteRecord(result.id);
+                    // Remove the row from the table
+                    tableBody.removeChild(row);
+                });
+                actionCell.appendChild(deleteButton);
+            });
+        }
+
+        async function deleteRecord(recordId) {
+            const pb = new PocketBase('https://azda.hop.sh');
+            const auth = await pb.admins.authWithPassword('nooruddin.rahmani100@gmail.com', 'N1@nooruddin');
+            try {
+                await pb.collection('personnel_reports').delete(recordId);
+
+            } catch (error) {
+                alert('Error deleting the record: ' + error.message);
+            }
+        }
+
+        main();
+    </script>
+</body>
+
+</html>
