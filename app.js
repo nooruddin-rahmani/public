@@ -18,6 +18,7 @@ document.getElementById('myForm').addEventListener('submit', (e) => {
     };
     pb.collection('personnel_reports').create(formData);
     document.getElementById('myForm').reset();
-    window.open("./redirect.html")
+    window.open("./redirect.html", "_self")
+
 });
 test()
