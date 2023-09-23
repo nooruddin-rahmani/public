@@ -16,9 +16,10 @@ document.getElementById('myForm').addEventListener('submit', (e) => {
         "personnel_report": input3,
         "personnel_comment": input4
     };
+
     pb.collection('personnel_reports').create(formData);
     document.getElementById('myForm').reset();
-    window.open("./redirect.html", "_self")
+
 
 });
 test()
